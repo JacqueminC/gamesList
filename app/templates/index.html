@@ -9,6 +9,16 @@
 
 {% block content %}
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+      {% for category, message in messages %}        
+          {% if category == "signin" %}
+          <p style="color: green; font-weight: bold;">{{ message }}</p>
+          {% endif %}                
+      {% endfor %}
+  {% endif %}
+{% endwith %}
+
     <div class="container">
       
     </div>
