@@ -22,9 +22,36 @@
     <div class="container">
         <h1>Liste des jeux</h1>
         <p>
-            Voici les jeux ques les autres joueurs ont ajoutés dans leur liste.
+            Voici les jeux que les autres joueurs ont ajoutés dans leur liste.
         </p>
-      
+
+        {% for game in games %}  
+
+            {% if game["fullname"]|length < 3 %}
+                <h4 style="color: green; font-weight: bold;">
+            {% elif game["fullname"]|length < 5 %}
+                <h4 style="color: orange; font-weight: bold;">
+            {% elif game["fullname"]|length < 7 %}
+                <h4 style="color: red; font-weight: bold;">
+            {% endif %}
+
+                {{game["_id"]}}
+            </h4>
+            <p> 
+            {% for fullname in game["fullname"] %}
+                    {{fullname}} |                       
+            {% endfor %}
+            </p>
+            <!-- <ul style="list-style:none; margin-left:0; padding-left:0;">              
+                    {% for fullname in game["fullname"] %}
+                        <li>
+                            {{fullname}} 
+                        </li>
+                        
+                    {% endfor %}
+            </ul> -->
+           
+        {% endfor %}      
     </div>
     
 

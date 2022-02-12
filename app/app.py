@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from flask import Flask, render_template, flash, session, redirect, request
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -98,7 +99,8 @@ def action():
 
 @app.route("/showlist")
 def showList():
-    return render_template("showlist.html")
+    games = Game.listAllGames()
+    return render_template("showlist.html", games=games)
 
 
 class signinForm(FlaskForm):
@@ -193,7 +195,6 @@ class Player():
 class Game():
 
     def findGameByPlayerId(id):
-        """id = ObjectId(session["player"]["id"])"""
         query = {
             "idPlayer" : ObjectId(id)
         }
@@ -215,3 +216,16 @@ class Game():
         }
 
         gameColl.delete_one(query)
+
+    def listAllGames():
+        pipeline = [
+            { 
+            "$group" : {
+                "_id" : "$name", 
+                "fullname" : {
+                    "$push" : "$fullname"
+                    }
+                }
+            },{"$sort": {"_id":1}}
+        ]
+        return gameColl.aggregate(pipeline)
