@@ -1,6 +1,4 @@
-from glob import escape
-import re
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, session, redirect
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField
@@ -32,11 +30,10 @@ def signin():
             else:
                 raise Exception("la confirmation du mot de passe n'est pas bonne") 
         except Exception as ex:
-            print(ex)
             flash(ex, "error")
             return render_template("signin.html", form=form, ve=ValidationError())
 
-        flash("Inscription réussie!", "signin")        
+        flash("Inscription réussie!", "done")        
         return render_template("index.html", )
     
     return render_template("signin.html", form = form)
@@ -44,7 +41,43 @@ def signin():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = loginForm()
+
+    if form.validate_on_submit():
+        player = Player.login(form.email.data)
+
+        if Player.verifyPassword(player["motDePasse"], form.mdp.data):
+            session["player"] = {
+                "id": str(player["_id"]),
+                "fullname": player["prenom"] + " " + player["nom"],
+                "email": player["email"]
+            }
+            session["islogged"] = True
+            flash("Identification réussie!", "done")
+            return render_template("index.html")
+        else:
+            ex = Exception("email et/ou mot de passe incorrect(s)")
+            flash(ex, "error")
+            return render_template("login.html", form = form)
+
+
     return render_template("login.html", form = form)
+
+@app.route("/logout")
+def logout():
+    
+    session.pop("player", None)
+    session["islogged"] = False
+
+    return redirect("/")
+
+@app.route("/addgame")
+def addGame():
+    return render_template("addgame.html")
+
+@app.route("/showlist")
+def showList():
+    return render_template("showlist.html")
+
 
 class signinForm(FlaskForm):
     nom = StringField("Nom", validators=[InputRequired()])
@@ -83,7 +116,6 @@ class Player():
         else:
            raise Exception("Le motDePasse doit contenir 8 caractère")
 
-
     def signin(form):
         print("sign in")
         try:
@@ -97,9 +129,7 @@ class Player():
             Player.savePlayer(player)
         except Exception as ex:
             print(ex)
-            raise ex
-
-        
+            raise ex        
 
     def savePlayer(player):
         print("save player")
@@ -114,8 +144,29 @@ class Player():
         else:
             raise Exception("Cet email est déjà utilisé")
 
-    def login():
-        return "LOGIN"
+    def login(email):
+        print("login player")
+        query = {
+            "email" : email
+        }
+
+        return playerColl.find_one(query)
+
+    def verifyPassword(hash, clearPwd):
+        hashByte = bytes.fromhex(hash)
+
+        salt = hashByte[:32]
+        key = hashByte[32:]
+
+        new_key = hashlib.pbkdf2_hmac('sha256', clearPwd.encode('utf-8'), salt, 100000)
+
+        if new_key == key:
+            return True
+        else:
+            return False
+        
+
+
 
 
 

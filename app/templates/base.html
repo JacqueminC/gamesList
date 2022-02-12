@@ -15,14 +15,17 @@
     
       <div class="collapse navbar-collapse" id="navbarColor01">
         <ul class="navbar-nav mr-auto">
-          {% if session.get("isLogged") == True and session.get("isAdmin") != True %}
+          {% if session.get("islogged") == True %}
           <li class="nav-item active">
-            <a class="nav-link" href="/">Home</a>
+            <a class="nav-link" href="/addgame">Ajouter un jeu</a>
           </li>
-          {% endif %}       
+          <li class="nav-item active">
+            <a class="nav-link" href="/showlist">Consulter les listes</a>
+          </li>
+          {% endif %}
         </ul>
 
-        {% if session.get("isLogged") != True %}   
+        {% if session.get("islogged") != True %}   
           <ul class="form-inline my-2 my-lg-0">
             <button class="btn btn-secondary my-2 my-sm-0">
               <a class="nav-link" href="/login">S'authentifier</a>
@@ -33,7 +36,7 @@
           </ul>          
         {% else %}
           <ul class="form-inline my-2 my-lg-0">
-            <a class="nav-link" href="/auth/logout">
+            <a class="nav-link" href="/logout">
               <button class="btn btn-danger my-2 my-sm-0">Se déconnecter</button>
             </a>
           </ul>  
