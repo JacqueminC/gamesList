@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+
+{% block title %}
+
+    <title>Inscription</title>
+
+{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+<div class="container">
+    <h2>Formulaire d'inscription</h2>
+
+    <form action="{{url_for('login')}}" method="POST">
+        {{form.csrf_token}}
+        {{ form.hidden_tag() }}
+
+        {{ wtf.form_field(form.nom) }}
+
+        {{ wtf.form_field(form.prenom) }}
+
+        {{ wtf.form_field(form.email) }}
+
+        {{ wtf.form_field(form.motDePasse) }}
+
+        {{ wtf.form_field(form.confMDP) }}
+
+        <input type="submit" value="S'inscrire" class="btn btn-primary">
+
+    </form>
+
+</div>
+
+{% endwith %}
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $('#datepick').datetimepicker();
+    });
+  </script>
+{% endblock %}
