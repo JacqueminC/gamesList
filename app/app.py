@@ -1,9 +1,11 @@
-from flask import Flask, render_template, flash, session, redirect
+from flask import Flask, render_template, flash, session, redirect, request
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField
 from wtforms.validators import InputRequired, ValidationError
 from pymongo import MongoClient
+import pymongo
+from bson.objectid import ObjectId
 import os, hashlib
 
 app = Flask(__name__)
@@ -13,6 +15,7 @@ Bootstrap(app)
 client = MongoClient('mongodb://localhost:27017/')
 db = client["gamesList"]
 playerColl = db["player"]
+gameColl = db["game"]
 
 @app.route("/")
 def index():
@@ -70,9 +73,28 @@ def logout():
 
     return redirect("/")
 
-@app.route("/addgame")
+@app.route("/addgame", methods=["GET", "POST"])
 def addGame():
-    return render_template("addgame.html")
+    form = addGameForm()    
+    
+    if session["islogged"] != True:
+        return render_template("index.html")
+
+    if form.validate_on_submit():
+        Game.saveGame(form.name.data)
+
+    games = Game.findGameByPlayerId(session["player"]["id"])
+    form.name.data = ""
+
+    return render_template("addgame.html", form=form, games=games)
+
+@app.route("/actiongame", methods=["GET", "POST"])
+def action():
+    if request.form.get("trash"):
+        Game.deleteGame(request.values["trash"])        
+
+    return redirect("/addgame")
+
 
 @app.route("/showlist")
 def showList():
@@ -89,6 +111,9 @@ class signinForm(FlaskForm):
 class loginForm(FlaskForm):
     email = StringField("Email", validators=[InputRequired()])
     mdp = PasswordField("Mot de passe", validators=[InputRequired()])
+
+class addGameForm(FlaskForm):
+    name = StringField("", validators=[InputRequired()], render_kw={"placeholder": "JEU"})
 
 class Player():
     def __init__(self, nom, prenom, email, motDePasse):
@@ -165,10 +190,28 @@ class Player():
         else:
             return False
         
+class Game():
 
+    def findGameByPlayerId(id):
+        """id = ObjectId(session["player"]["id"])"""
+        query = {
+            "idPlayer" : ObjectId(id)
+        }
 
+        return gameColl.find(query).sort([("name", pymongo.ASCENDING)])
 
+    def saveGame(name):
+        query = {
+            "idPlayer" : ObjectId(session["player"]["id"]),
+            "name" : name,
+            "fullname": session["player"]["fullname"]
+        }
 
+        gameColl.insert_one(query)
 
+    def deleteGame(id):
+        query = {
+            "_id": ObjectId(id)
+        }
 
-
+        gameColl.delete_one(query)
