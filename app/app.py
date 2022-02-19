@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from flask import Flask, render_template, flash, session, redirect, request
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
