@@ -23,25 +23,25 @@ gameColl = db["game"]
 def index():
     return render_template("index.html")
 
-@app.route("/signin", methods=["GET", "POST"])
-def signin():
-    form = signinForm()
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    form = registerForm()
 
     if form.validate_on_submit(): 
         print("form validate on submit")
         try:
             if (form.motDePasse.data == form.confMDP.data):
-                Player.signin(form)
+                Player.registerPlayer(form)
             else:
                 raise Exception("la confirmation du mot de passe n'est pas bonne") 
         except Exception as ex:
             flash(ex, "error")
-            return render_template("signin.html", form=form, ve=ValidationError())
+            return render_template("register.html", form=form, ve=ValidationError())
 
         flash("Inscription réussie!", "done")        
         return render_template("index.html", )
     
-    return render_template("signin.html", form = form)
+    return render_template("register.html", form = form)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -104,7 +104,7 @@ def showList():
     return render_template("showlist.html", games=games)
 
 
-class signinForm(FlaskForm):
+class registerForm(FlaskForm):
     nom = StringField("Nom", validators=[InputRequired()])
     prenom = StringField("Prénom", validators=[InputRequired()])
     email = EmailField("Email", validators=[InputRequired()])
@@ -144,8 +144,8 @@ class Player():
         else:
            raise Exception("Le motDePasse doit contenir 8 caractère")
 
-    def signin(form):
-        print("sign in")
+    def registerPlayer(form):
+        print("register")
         try:
             player = Player(
                 form.nom.data,
