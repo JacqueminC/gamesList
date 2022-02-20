@@ -1,3 +1,4 @@
+from ast import And
 from flask import Flask, render_template, flash, session, redirect, request
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -48,7 +49,10 @@ def login():
     if form.validate_on_submit():
         player = Player.login(form.email.data)
 
-        if Player.verifyPassword(player["motDePasse"], form.mdp.data):
+        notFind = 
+
+
+        if  not player is None and Player.verifyPassword(player["motDePasse"], form.mdp.data):
             session["player"] = {
                 "id": str(player["_id"]),
                 "fullname": player["prenom"] + " " + player["nom"],
