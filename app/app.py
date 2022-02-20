@@ -1,4 +1,5 @@
 from ast import And
+import email
 from flask import Flask, render_template, flash, session, redirect, request
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -47,13 +48,13 @@ def login():
     form = loginForm()
 
     if form.validate_on_submit():
-        player = Player.login(form.email.data)
+        player = Player.login(form.email.data.replace(" ", ""))
 
         if  not player is None and Player.verifyPassword(player["motDePasse"], form.mdp.data):
             session["player"] = {
                 "id": str(player["_id"]),
                 "fullname": player["prenom"] + " " + player["nom"],
-                "email": player["email"]
+                "email": player["email"].replace(" ", "")
             }
             session["islogged"] = True
             flash("Identification réussie!", "done")
@@ -149,8 +150,8 @@ class Player():
             player = Player(
                 form.nom.data,
                 form.prenom.data,
-                form.email.data,
-                form.motDePasse.data
+                form.email.data.replace(" ", ""),
+                form.motDePasse.data.replace(" ", "")
                 )
 
             Player.savePlayer(player)
