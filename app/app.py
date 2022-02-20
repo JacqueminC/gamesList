@@ -228,3 +228,6 @@ class Game():
             },{"$sort": {"_id":1}}
         ]
         return gameColl.aggregate(pipeline)
+
+if __name__ == '__main__':
+    app.run(debug=True,host='0.0.0.0')
