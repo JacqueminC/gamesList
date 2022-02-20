@@ -49,9 +49,6 @@ def login():
     if form.validate_on_submit():
         player = Player.login(form.email.data)
 
-        notFind = 
-
-
         if  not player is None and Player.verifyPassword(player["motDePasse"], form.mdp.data):
             session["player"] = {
                 "id": str(player["_id"]),
