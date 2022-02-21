@@ -83,7 +83,8 @@ def addGame():
         return render_template("index.html")
 
     if form.validate_on_submit():
-        Game.saveGame(form.name.data)
+        name = str(form.name.data).strip()
+        Game.saveGame(name)
 
     games = Game.findGameByPlayerId(session["player"]["id"])
     form.name.data = ""
